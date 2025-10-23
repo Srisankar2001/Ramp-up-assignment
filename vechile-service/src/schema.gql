@@ -1,0 +1,51 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Vechile {
+  id: Int!
+  first_name: String!
+  last_name: String!
+  email: String!
+  car_make: String!
+  car_model: String!
+  vin: String!
+  manufactured_date: String!
+  age_of_vechile: Int!
+}
+
+type ResponseDTO {
+  success: Boolean!
+  message: String!
+}
+
+type Query {
+  getAllVechile: [Vechile!]!
+  getVechile(id: Int!): Vechile
+}
+
+type Mutation {
+  createVechile(createVechileInput: CreateVechileInput!): ResponseDTO!
+  updateVechile(id: Int!, updateVechileInput: UpdateVechileInput!): ResponseDTO!
+  deleteVechile(id: Int!): ResponseDTO!
+}
+
+input CreateVechileInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  car_make: String!
+  car_model: String!
+  vin: String!
+  manufactured_date: String!
+}
+
+input UpdateVechileInput {
+  first_name: String
+  last_name: String
+  email: String
+  car_make: String
+  car_model: String
+  vin: String
+  manufactured_date: String
+}
