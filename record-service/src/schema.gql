@@ -1,0 +1,38 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Record {
+  id: ID!
+  vin: String!
+  date: String!
+  maintenance: String!
+}
+
+type ResponseDTO {
+  success: Boolean!
+  message: String!
+}
+
+type Query {
+  getAllRecord: [Record!]!
+  getRecord(id: Int!): Record
+}
+
+type Mutation {
+  createRecord(createRecordInput: CreateRecordInput!): ResponseDTO!
+  updateRecord(id: Int!, updateRecordInput: UpdateRecordInput!): ResponseDTO!
+  removeRecord(id: Int!): ResponseDTO!
+}
+
+input CreateRecordInput {
+  vin: String!
+  date: String!
+  maintenance: String!
+}
+
+input UpdateRecordInput {
+  vin: String
+  date: String
+  maintenance: String
+}

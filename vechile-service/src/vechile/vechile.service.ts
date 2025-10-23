@@ -113,6 +113,12 @@ export class VechileService {
     return await this.repo.findOne({ where: { id: id } });
   }
 
+  async findOneByVIN(vin: string): Promise<Vechile | null> {
+    return await this.repo.findOne({
+      where: { vin: vin.trim().toUpperCase() },
+    });
+  }
+
   async update(
     id: number,
     updateVechileInput: UpdateVechileInput,

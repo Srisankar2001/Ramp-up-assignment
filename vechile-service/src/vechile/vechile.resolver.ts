@@ -26,6 +26,11 @@ export class VechileResolver {
     return this.vechileService.findOne(id);
   }
 
+  @Query(() => Vechile, { name: 'getVechileByVIN', nullable: true })
+  async findOneByVIN(@Args('vin') vin: string) {
+    return this.vechileService.findOneByVIN(vin);
+  }
+
   @Mutation(() => ResponseDTO, { name: 'updateVechile' })
   async updateVechile(
     @Args('id', { type: () => Int }) id: number,
