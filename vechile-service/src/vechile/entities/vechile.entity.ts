@@ -1,7 +1,9 @@
-import { ObjectType, Field, Int, ID } from '@nestjs/graphql';
+import { ObjectType, Field, Int, ID, Directive } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Record } from './record.entity';
 
 @ObjectType()
+@Directive('@key(fields:"id")')
 @Entity()
 export class Vechile {
   @Field((type) => ID)
@@ -39,6 +41,9 @@ export class Vechile {
   @Field(() => Int)
   @Column()
   age_of_vechile: number;
+
+  @Field(() => [Record])
+  records: [Record];
 
   constructor(
     first_name: string,

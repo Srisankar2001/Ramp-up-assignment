@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveReference,
+} from '@nestjs/graphql';
 import { RecordService } from './record.service';
 import { Record } from './entities/record.entity';
 import { CreateRecordInput } from './dto/create-record.input';
@@ -42,5 +49,10 @@ export class RecordResolver {
   @Mutation(() => ResponseDTO)
   async removeRecord(@Args('id', { type: () => Int }) id: number) {
     return this.recordService.remove(id);
+  }
+
+  @ResolveReference()
+  async resolveReference(ref: { __typename: string; id: string }) {
+    return this.recordService.findByVIN(ref.id);
   }
 }

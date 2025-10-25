@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
 import { VechileModule } from './vechile/vechile.module';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import {
+  ApolloFederationDriver,
+  ApolloFederationDriverConfig,
+} from '@nestjs/apollo';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vechile } from './vechile/entities/vechile.entity';
 import { HttpModule } from '@nestjs/axios';
+import { Record } from './vechile/entities/record.entity';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
+    GraphQLModule.forRoot<ApolloFederationDriverConfig>({
+      driver: ApolloFederationDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      buildSchemaOptions: {
+        orphanedTypes: [Record],
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

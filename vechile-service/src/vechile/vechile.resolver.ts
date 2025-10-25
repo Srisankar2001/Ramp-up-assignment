@@ -1,4 +1,13 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveReference,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { VechileService } from './vechile.service';
 import { Vechile } from './entities/vechile.entity';
 import { CreateVechileInput } from './dto/create-vechile.input';
@@ -50,5 +59,10 @@ export class VechileResolver {
   @Mutation(() => ResponseDTO, { name: 'deleteVechile' })
   async removeVechile(@Args('id', { type: () => Int }) id: number) {
     return this.vechileService.remove(id);
+  }
+
+  @ResolveField()
+  records(@Parent() vechile: Vechile) {
+    return { __typename: 'Record', vin: vechile.vin };
   }
 }

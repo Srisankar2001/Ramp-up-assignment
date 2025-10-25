@@ -2,14 +2,17 @@ import { Module } from '@nestjs/common';
 import { RecordModule } from './record/record.module';
 import { Record } from './record/entities/record.entity';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import {
+  ApolloFederationDriver,
+  ApolloFederationDriverConfig,
+} from '@nestjs/apollo';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
+    GraphQLModule.forRoot<ApolloFederationDriverConfig>({
+      driver: ApolloFederationDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     TypeOrmModule.forRoot({
