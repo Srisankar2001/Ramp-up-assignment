@@ -17,8 +17,16 @@ export class VechileResolver {
   }
 
   @Query(() => [Vechile], { name: 'getAllVechile' })
-  async findAll() {
-    return this.vechileService.findAll();
+  async findAll(
+    @Args('page', { type: () => Int }) page: number,
+    @Args('limit', { type: () => Int }) limit: number,
+  ) {
+    return this.vechileService.findAll(page, limit);
+  }
+
+  @Query(() => [Vechile], { name: 'getAllVechileByModel' })
+  async findAllByModel(@Args('model') model: string) {
+    return this.vechileService.findAllByModel(model);
   }
 
   @Query(() => Vechile, { name: 'getVechile', nullable: true })

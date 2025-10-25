@@ -4,8 +4,8 @@ import { Job } from 'bullmq';
 import { Vechile } from './vechile.entity';
 import { Repository } from 'typeorm';
 
-@Processor('importToVechileDB')
-export class VechileProcessor extends WorkerHost {
+@Processor('Import-Queue')
+export class VechileImportProcessor extends WorkerHost {
   constructor(
     @InjectRepository(Vechile) private readonly repo: Repository<Vechile>,
   ) {

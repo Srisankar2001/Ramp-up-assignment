@@ -17,6 +17,7 @@ type ResponseDTO {
 type Query {
   getAllRecord: [Record!]!
   getRecord(id: Int!): Record
+  getRecordByVIN(vin: String!): [Record!]!
 }
 
 type Mutation {

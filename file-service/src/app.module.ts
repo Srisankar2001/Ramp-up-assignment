@@ -4,7 +4,8 @@ import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vechile } from './vechile.entity';
-import { VechileProcessor } from './vechileProcessor.processor';
+import { VechileImportProcessor } from './import.processor';
+import { VechileExportProcessor } from './export.processor';
 
 @Module({
   imports: [
@@ -24,11 +25,14 @@ import { VechileProcessor } from './vechileProcessor.processor';
         port: 6379,
       },
     }),
-    BullModule.registerQueue({
-      name: 'importToVechileDB',
-    }),
+    BullModule.registerQueue(
+      {
+        name: 'Import-Queue',
+      },
+      { name: 'Export-Queue' },
+    ),
   ],
   controllers: [AppController],
-  providers: [AppService,VechileProcessor],
+  providers: [AppService, VechileImportProcessor, VechileExportProcessor],
 })
 export class AppModule {}

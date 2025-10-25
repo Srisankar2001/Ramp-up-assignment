@@ -3,16 +3,47 @@ import { CreateVechileInput } from './dto/create-vechile.input';
 import { UpdateVechileInput } from './dto/update-vechile.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vechile } from './entities/vechile.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { ResponseDTO } from './dto/response.output';
+import FormData from 'form-data';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class VechileService {
   constructor(
     @InjectRepository(Vechile)
     private readonly repo: Repository<Vechile>,
+    private readonly httpService: HttpService,
   ) {}
 
+  // Rest Method
+  async upload(file: Express.Multer.File): Promise<ResponseDTO> {
+    try {
+      const form = new FormData();
+      form.append('file', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+
+      const response = await lastValueFrom(
+        this.httpService.post('http://localhost:4004/file/upload', form, {
+          headers: form.getHeaders(),
+        }),
+      );
+
+      console.log(response.data);
+      return new ResponseDTO(
+        response.data.status ?? false,
+        response.data.message ?? 'Internal Server Error',
+      );
+    } catch (error) {
+      console.log(error);
+      return new ResponseDTO(false, 'Import Failed');
+    }
+  }
+
+  // GraphQL Method
   async create(createVechileInput: CreateVechileInput): Promise<ResponseDTO> {
     try {
       if (
@@ -85,32 +116,39 @@ export class VechileService {
     }
   }
 
-  // async findAll(): Promise<Vechile[] | null> {
-  //   try {
-  //     return await this.repo.find();
-  //   } catch (error) {
-  //     return null;
-  //   }
-  // }
+  async findAll(pageArg: number, limitArg: number): Promise<Vechile[]> {
+    let page = pageArg;
+    let limit = limitArg;
 
-  async findAll(): Promise<Vechile[]> {
-    return await this.repo.find();
+    const total = await this.repo.count();
+    if (page <= 0) {
+      page = 1;
+    }
+    if (limit <= 0) {
+      limit = 100;
+    }
+    if (total < page * limit) {
+      page = 1;
+      limit = 100;
+    }
+    return await this.repo.find({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'ASC' },
+    });
   }
-
-  // async findOne(id: number): Promise<ResponseDTO<Vechile | null>> {
-  //   try {
-  //     let vechile = await this.repo.findOne({ where: { id: id } });
-  //     if (!vechile) {
-  //       return new ResponseDTO(false, 'ID not Found', null);
-  //     }
-  //     return new ResponseDTO(true, 'User Fetched Successfully', vechile);
-  //   } catch (error) {
-  //     return new ResponseDTO(false, 'Internal Server Error', null);
-  //   }
-  // }
 
   async findOne(id: number): Promise<Vechile | null> {
     return await this.repo.findOne({ where: { id: id } });
+  }
+
+  async findAllByModel(model: string): Promise<Vechile[]> {
+    if (!model || model.trim() === '') {
+      return this.repo.find();
+    }
+    return await this.repo.find({
+      where: { car_model: ILike(`${model.trim()}%`) },
+    });
   }
 
   async findOneByVIN(vin: string): Promise<Vechile | null> {

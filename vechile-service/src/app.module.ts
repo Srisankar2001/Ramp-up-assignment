@@ -5,6 +5,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vechile } from './vechile/entities/vechile.entity';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -21,6 +22,9 @@ import { Vechile } from './vechile/entities/vechile.entity';
       database: 'vechile',
       entities: [Vechile],
       synchronize: true,
+    }),
+    HttpModule.register({
+      timeout: 5000,
     }),
     VechileModule,
   ],
