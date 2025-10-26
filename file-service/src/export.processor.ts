@@ -16,13 +16,14 @@ export class VechileExportProcessor extends WorkerHost {
     super();
   }
   async process(job: Job<any, any, string>): Promise<any> {
-    const { age, userId, timestamp } = job.data;
+    const { age, userId } = job.data;
     try {
       const data = await this.repo.find({
         where: { age_of_vechile: MoreThanOrEqual(age) },
         order: { id: 'ASC' },
       });
 
+      const timestamp = new Date().getTime();
       const fileName = `${userId}_${timestamp}.csv`;
       const filePath = path.join(this.exportDir, fileName);
 

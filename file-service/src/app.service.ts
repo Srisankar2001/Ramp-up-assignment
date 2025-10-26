@@ -55,15 +55,11 @@ export class AppService {
     });
   }
 
-  async export(
-    age: number,
-    userId: string,
-    timestamp: string,
-  ): Promise<ResponseDTO> {
+  async export(age: number, userId: string): Promise<ResponseDTO> {
     try {
       this.exportQueue.add(
         'export-batch',
-        { age, userId, timestamp },
+        { age, userId },
         {
           attempts: 3,
           backoff: {

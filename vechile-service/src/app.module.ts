@@ -15,7 +15,11 @@ import { Record } from './vechile/entities/record.entity';
   imports: [
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       driver: ApolloFederationDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: {
+        path: 'schema.gql',
+        federation: 2,
+      },
       buildSchemaOptions: {
         orphanedTypes: [Record],
       },

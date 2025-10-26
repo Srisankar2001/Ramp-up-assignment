@@ -5,7 +5,7 @@ import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 @Directive('@key(fields:"vin")')
 export class Record {
   @Field((type) => ID)
-  @Directive('@external')
+  // @Directive('@external')
   id: number;
 
   @Field()

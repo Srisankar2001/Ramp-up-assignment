@@ -30,9 +30,8 @@ export class AppController {
   async export(
     @Body('age') age: number,
     @Body('userId') userId: string,
-    @Body('timestamp') timestamp: string,
   ): Promise<ResponseDTO> {
-    return this.appService.export(age, userId, timestamp);
+    return this.appService.export(age, userId);
   }
 
   @Post('download')
