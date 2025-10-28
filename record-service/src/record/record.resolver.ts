@@ -4,7 +4,8 @@ import {
   Mutation,
   Args,
   Int,
-  ResolveReference,
+  ResolveField,
+  Parent,
 } from '@nestjs/graphql';
 import { RecordService } from './record.service';
 import { Record } from './entities/record.entity';
@@ -51,8 +52,8 @@ export class RecordResolver {
     return this.recordService.remove(id);
   }
 
-  @ResolveReference()
-  async resolveReference(ref: { __typename: string; id: string }) {
-    return this.recordService.findByVIN(ref.id);
+  @ResolveField()
+  vechile(@Parent() record: Record) {
+    return { __typename: 'Vechile', vin: record.vin };
   }
 }

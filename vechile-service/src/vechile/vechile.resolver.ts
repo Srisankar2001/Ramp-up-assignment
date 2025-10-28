@@ -4,8 +4,7 @@ import {
   Mutation,
   Args,
   Int,
-  ResolveField,
-  Parent,
+  ResolveReference,
 } from '@nestjs/graphql';
 import { VechileService } from './vechile.service';
 import { Vechile } from './entities/vechile.entity';
@@ -60,8 +59,8 @@ export class VechileResolver {
     return this.vechileService.remove(id);
   }
 
-  @ResolveField()
-  records(@Parent() vechile: Vechile) {
-    return { __typename: 'Record', vin: vechile.vin };
+  @ResolveReference()
+  resolveReference(ref: { __typename: string; vin: string }) {
+    return this.vechileService.findOneByVIN(ref.vin);
   }
 }

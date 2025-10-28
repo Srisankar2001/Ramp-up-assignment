@@ -14,7 +14,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private users: Map<string, string> = new Map();
 
   handleConnection(client: Socket) {
-    console.log(client.handshake.query);
     const userId = client.handshake.query.userId as string;
     if (userId) {
       this.users.set(userId, client.id);
@@ -30,10 +29,43 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  sendNotification(userId: string, age: number, fileName: string) {
+  sendDownloadSuccessNotification(
+    userId: string,
+    age: number,
+    fileName: string,
+  ) {
     const socketId = this.users.get(userId);
     if (socketId) {
-      this.server.to(socketId).emit('Notification-Event', { age, fileName });
+      this.server
+        .to(socketId)
+        .emit('Download-Success-Event', { age, fileName });
+    }
+  }
+
+  sendDownloadFailureNotification(userId: string, age: number) {
+    const socketId = this.users.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit('Download-Failure-Event', { age });
+    }
+  }
+
+  sendImportFailureNotification(
+    userId: string,
+    errorLog: string[],
+    fileName: string,
+  ) {
+    const socketId = this.users.get(userId);
+    if (socketId) {
+      this.server
+        .to(socketId)
+        .emit('Import-Failure-Event', { errorLog, fileName });
+    }
+  }
+
+  sendImportSuccessNotification(userId: string, fileName: string) {
+    const socketId = this.users.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit('Import-Success-Event', { fileName });
     }
   }
 }

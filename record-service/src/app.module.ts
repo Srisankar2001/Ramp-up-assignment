@@ -6,17 +6,19 @@ import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
-import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Vechile } from './record/entities/vechile.entity';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       driver: ApolloFederationDriver,
-      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       autoSchemaFile: {
         path: 'schema.gql',
         federation: 2,
+      },
+      buildSchemaOptions: {
+        orphanedTypes: [Vechile],
       },
     }),
     TypeOrmModule.forRoot({

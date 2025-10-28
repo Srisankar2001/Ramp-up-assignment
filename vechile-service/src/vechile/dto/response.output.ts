@@ -1,6 +1,7 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Directive, Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
+@Directive('@shareable')
 export class ResponseDTO {
   @Field()
   success: boolean;

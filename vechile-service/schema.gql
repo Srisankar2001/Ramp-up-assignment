@@ -2,13 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Record {
-  id: ID!
-  vin: String!
-  date: String!
-  maintenance: String!
-}
-
 type Vechile {
   id: ID!
   first_name: String!
@@ -19,7 +12,6 @@ type Vechile {
   vin: String!
   manufactured_date: String!
   age_of_vechile: Int!
-  records: [Record!]!
 }
 
 type ResponseDTO {

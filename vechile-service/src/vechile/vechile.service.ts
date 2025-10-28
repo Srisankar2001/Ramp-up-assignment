@@ -1,46 +1,119 @@
-import { Injectable, Res } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateVechileInput } from './dto/create-vechile.input';
 import { UpdateVechileInput } from './dto/update-vechile.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vechile } from './entities/vechile.entity';
 import { ILike, Repository } from 'typeorm';
 import { ResponseDTO } from './dto/response.output';
-import FormData from 'form-data';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { InjectQueue } from '@nestjs/bullmq';
+import { VechileDTO } from './dto/vechile.dto';
+import { Readable } from 'stream';
+import * as csv from 'fast-csv';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Response } from 'express';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class VechileService {
+  private readonly exportDir = path.join(process.cwd(), 'exports');
   constructor(
     @InjectRepository(Vechile)
     private readonly repo: Repository<Vechile>,
-    private readonly httpService: HttpService,
+    @InjectQueue('Export-Queue') private readonly exportQueue: Queue,
+    @InjectQueue('Validate-Queue') private readonly validateQueue: Queue,
   ) {}
 
-  // Rest Method
-  async upload(file: Express.Multer.File): Promise<ResponseDTO> {
+  async upload(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<ResponseDTO> {
+    let rows: VechileDTO[] = [];
+    const stream = Readable.from(file.buffer);
+    return new Promise((resolve, reject) => {
+      stream
+        .pipe(csv.parse({ headers: true, trim: true }))
+        .on('error', (error) => {
+          reject(new ResponseDTO(false, 'CSV Parsing Failed'));
+        })
+        .on('data', (row) => {
+          rows.push(row as VechileDTO);
+        })
+        .on('end', () => {
+          this.validateQueue.add(
+            'validate-batch',
+            { userId, vechileList: rows },
+            {
+              attempts: 3,
+              backoff: {
+                type: 'exponential',
+                delay: 3000,
+              },
+            },
+          );
+          resolve(new ResponseDTO(true, 'CSV Parsed Successfully'));
+        });
+    });
+  }
+
+  async export(age: number, userId: string): Promise<ResponseDTO> {
     try {
-      const form = new FormData();
-      form.append('file', file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-
-      const response = await lastValueFrom(
-        this.httpService.post('http://localhost:4004/file/upload', form, {
-          headers: form.getHeaders(),
-        }),
+      this.exportQueue.add(
+        'export-batch',
+        { age, userId },
+        {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 3000,
+          },
+        },
       );
-
-      console.log(response.data);
-      return new ResponseDTO(
-        response.data.status ?? false,
-        response.data.message ?? 'Internal Server Error',
-      );
+      return new ResponseDTO(true, 'Download Requested');
     } catch (error) {
-      console.log(error);
-      return new ResponseDTO(false, 'Import Failed');
+      return new ResponseDTO(false, 'Download Failed');
     }
+  }
+
+  async download(fileNameArg: string, res: Response): Promise<ResponseDTO> {
+    try {
+      const fileName = fileNameArg;
+      const filePath = path.join(this.exportDir, fileName);
+
+      const exists = await this.checkFile(filePath);
+
+      if (!exists) {
+        return new ResponseDTO(false, 'File not found');
+      }
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename="vechile.csv"',
+      );
+
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+
+      return new ResponseDTO(true, 'Download Success');
+    } catch (error) {
+      return new ResponseDTO(false, 'Download Failed');
+    }
+  }
+
+  private async checkFile(filePath: string): Promise<boolean> {
+    const start = Date.now();
+    return new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (fs.existsSync(filePath)) {
+          clearInterval(interval);
+          resolve(true);
+        } else if (Date.now() - start > 5000) {
+          clearInterval(interval);
+          resolve(false);
+        }
+      }, 500);
+    });
   }
 
   // GraphQL Method

@@ -5,23 +5,18 @@ import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
-import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vechile } from './vechile/entities/vechile.entity';
 import { HttpModule } from '@nestjs/axios';
-import { Record } from './vechile/entities/record.entity';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       driver: ApolloFederationDriver,
-      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       autoSchemaFile: {
         path: 'schema.gql',
         federation: 2,
-      },
-      buildSchemaOptions: {
-        orphanedTypes: [Record],
       },
     }),
     TypeOrmModule.forRoot({
@@ -38,6 +33,12 @@ import { Record } from './vechile/entities/record.entity';
       timeout: 5000,
     }),
     VechileModule,
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
   ],
   controllers: [],
   providers: [],

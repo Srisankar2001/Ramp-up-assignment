@@ -1,0 +1,11 @@
+<h1>Vehicles List</h1>
+
+<ul *ngIf="vechiles.length > 0; else noData">
+  <li *ngFor="let v of vechiles">
+    {{ v.id }} - {{ v.first_name }} - {{ v.vin }}
+  </li>
+</ul>
+
+<ng-template #noData>
+  <p>No vehicles found.</p>
+</ng-template>
