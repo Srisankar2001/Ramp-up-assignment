@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Vechile } from './vechile.entity';
 
 @ObjectType()
-@Directive('@key(fields:"vin")')
+@Directive('@key(fields:"id")')
 @Entity()
 export class Record {
   @Field((type) => ID)
