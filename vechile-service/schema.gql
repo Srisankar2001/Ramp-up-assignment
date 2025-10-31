@@ -19,9 +19,16 @@ type ResponseDTO {
   message: String!
 }
 
+type PaginationResponse {
+  totalPage: Int!
+  currentPage: Int!
+  limit: Int!
+  vechileList: [Vechile!]!
+}
+
 type Query {
-  getAllVechile(page: Int!, limit: Int!): [Vechile!]!
-  getAllVechileByModel(model: String!): [Vechile!]!
+  getAllVechile(page: Int!, limit: Int!): PaginationResponse!
+  getAllVechileByModel(model: String!, page: Int!, limit: Int!): PaginationResponse!
   getVechile(id: Int!): Vechile
   getVechileByVIN(vin: String!): Vechile
 }

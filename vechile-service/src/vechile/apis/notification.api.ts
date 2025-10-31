@@ -31,4 +31,17 @@ export class NotificationAPI {
       console.error('Failed to send notification', error);
     }
   }
+
+  async sendValidationFailureNotification(userId) {
+    try {
+      await firstValueFrom(
+        this.httpService.post(
+          'http://localhost:4004/notification/validation-failure',
+          { userId },
+        ),
+      );
+    } catch (error) {
+      console.error('Failed to send notification', error);
+    }
+  }
 }

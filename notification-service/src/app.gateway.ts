@@ -49,6 +49,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  sendValidationFailureNotification(userId: string) {
+    const socketId = this.users.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit('Validation-Failure-Event');
+    }
+  }
+
   sendImportFailureNotification(
     userId: string,
     errorLog: string[],

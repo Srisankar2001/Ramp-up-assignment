@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Job, Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Vechile } from '../entities/vechile.entity';
+import { NotificationAPI } from '../apis/notification.api';
 
 @Processor('Validate-Queue')
 export class VechileValidateProcessor extends WorkerHost {
@@ -10,6 +11,7 @@ export class VechileValidateProcessor extends WorkerHost {
   constructor(
     @InjectRepository(Vechile) private readonly repo: Repository<Vechile>,
     @InjectQueue('Import-Queue') private readonly importQueue: Queue,
+    private readonly notificationAPI: NotificationAPI,
   ) {
     super();
   }
@@ -104,7 +106,7 @@ export class VechileValidateProcessor extends WorkerHost {
         continue;
       }
     }
-    
+
     if (!flag) {
       for (let i = 0; i < vechileList.length; i += this.BATCH_SIZE) {
         console.log('Validate Success');

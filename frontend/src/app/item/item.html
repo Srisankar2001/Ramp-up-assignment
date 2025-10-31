@@ -1,1 +1,128 @@
-<p>item works!</p>
+<div class="div-container">
+  <header>
+    <h1>Record List</h1>
+    <nav>
+      <button class="create-btn" (click)="createForm.set(true)">Create</button>
+    </nav>
+  </header>
+
+  <div class="div-data-main">
+    <span>VIN : {{ vechile().vin }}</span>
+    <span>Car Make : {{ vechile().car_make }}</span>
+    <span>Car Model : {{ vechile().car_model }}</span>
+    <span>Age : {{ vechile().age_of_vechile }}</span>
+  </div>
+
+  <table *ngIf="records().length > 0; else noData">
+    <tr class="div-data-title">
+      <th>ID</th>
+      <th>Date</th>
+      <th>Maintenance</th>
+      <th class="div-data-title-action">Action</th>
+    </tr>
+    <tr *ngFor="let v of records()" class="div-data-li">
+      <td>{{ v.id }}</td>
+      <td>{{ v.date }}</td>
+      <td>{{ v.maintenance }}</td>
+      <td class="div-btn">
+        <button class="update-btn" (click)="updateForm.set(v.id); onUpdate(v.date, v.maintenance)">
+          Update
+        </button>
+        <button class="delete-btn" (click)="deleteForm.set(v.id)">Delete</button>
+      </td>
+    </tr>
+  </table>
+
+  <div class="create-form" *ngIf="createForm()">
+    <form (submit)="onCreateSubmit()" (reset)="onReset()">
+      <h1>Create Form</h1>
+      <div class="input-container">
+        <div class="div-input">
+          <label>Maintenance</label>
+          <input
+            type="text"
+            name="maintenance"
+            [value]="recordInput().maintenance"
+            (input)="onChange($event)"
+            placeholder="Enter Maintenance Here"
+          />
+          <h3 class="error" *ngIf="recordError().maintenance">{{ recordError().maintenance }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Date</label>
+          <input
+            type="date"
+            name="date"
+            [value]="recordInput().date"
+            (input)="onChange($event)"
+            placeholder="Enter Date Here"
+          />
+          <h3 class="error" *ngIf="recordError().date">
+            {{ recordError().date }}
+          </h3>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Create</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="update-form" *ngIf="updateForm()">
+    <form (submit)="onUpdateSubmit()" (reset)="onReset()">
+      <h1>Update Form</h1>
+      <div class="input-container">
+        <div class="div-input">
+          <label>Maintenance</label>
+          <input
+            type="text"
+            name="maintenance"
+            [value]="recordInput().maintenance"
+            (input)="onChange($event)"
+            placeholder="Enter Maintenance Here"
+          />
+          <h3 class="error" *ngIf="recordError().maintenance">{{ recordError().maintenance }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Date</label>
+          <input
+            type="date"
+            name="date"
+            [value]="recordInput().date"
+            (input)="onChange($event)"
+            placeholder="Enter Date Here"
+          />
+          <h3 class="error" *ngIf="recordError().date">
+            {{ recordError().date }}
+          </h3>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Update</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="delete-form" *ngIf="deleteForm()">
+    <form (submit)="onDeleteSubmit()" (reset)="onReset()">
+      <h1>Delete Form</h1>
+      <div class="input-container">
+        <div class="div-input">
+          <label>Do You Want To Delete This Record?</label>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Delete</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #noData>
+    <p>No Records Found</p>
+  </ng-template>
+</div>

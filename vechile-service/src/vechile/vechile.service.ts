@@ -10,9 +10,11 @@ import { VechileDTO } from './dto/vechile.dto';
 import { Readable } from 'stream';
 import * as csv from 'fast-csv';
 import * as fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import * as path from 'path';
 import { Response } from 'express';
 import { Queue } from 'bullmq';
+import { PaginationResponse } from './dto/paginationResponse.output';
 
 @Injectable()
 export class VechileService {
@@ -75,7 +77,7 @@ export class VechileService {
     }
   }
 
-  async download(fileNameArg: string, res: Response): Promise<ResponseDTO> {
+  async download(fileNameArg: string, res: Response): Promise<Response> {
     try {
       const fileName = fileNameArg;
       const filePath = path.join(this.exportDir, fileName);
@@ -83,7 +85,7 @@ export class VechileService {
       const exists = await this.checkFile(filePath);
 
       if (!exists) {
-        return new ResponseDTO(false, 'File not found');
+        return res.status(404).send('File Not Found');
       }
 
       res.setHeader('Content-Type', 'text/csv');
@@ -95,25 +97,19 @@ export class VechileService {
       const fileStream = fs.createReadStream(filePath);
       fileStream.pipe(res);
 
-      return new ResponseDTO(true, 'Download Success');
+      return res;
     } catch (error) {
-      return new ResponseDTO(false, 'Download Failed');
+      return res.status(500).send('Download Failed');
     }
   }
 
   private async checkFile(filePath: string): Promise<boolean> {
-    const start = Date.now();
-    return new Promise((resolve) => {
-      const interval = setInterval(() => {
-        if (fs.existsSync(filePath)) {
-          clearInterval(interval);
-          resolve(true);
-        } else if (Date.now() - start > 5000) {
-          clearInterval(interval);
-          resolve(false);
-        }
-      }, 500);
-    });
+    try {
+      await fsPromises.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // GraphQL Method
@@ -136,10 +132,7 @@ export class VechileService {
       }
       if (
         !createVechileInput.car_make ||
-        createVechileInput.car_make.trim() == '' ||
-        isNaN(Number(createVechileInput.car_make.trim())) ||
-        Number(createVechileInput.car_make) > new Date().getFullYear() ||
-        Number(createVechileInput.car_make) < 1900
+        createVechileInput.car_make.trim() == ''
       ) {
         return new ResponseDTO(false, 'Car Make is Empty or Invalid');
       }
@@ -189,39 +182,64 @@ export class VechileService {
     }
   }
 
-  async findAll(pageArg: number, limitArg: number): Promise<Vechile[]> {
-    let page = pageArg;
-    let limit = limitArg;
-
+  async findAll(
+    pageArg: number,
+    limitArg: number,
+  ): Promise<PaginationResponse> {
     const total = await this.repo.count();
-    if (page <= 0) {
-      page = 1;
+
+    let limit = limitArg > 0 ? limitArg : 100;
+    let totalPage = Math.ceil(total / limit);
+    if (totalPage === 0) totalPage = 1;
+    let page = pageArg > 0 ? pageArg : 1;
+
+    if (page > totalPage) {
+      page = totalPage > 0 ? totalPage : 1;
     }
-    if (limit <= 0) {
-      limit = 100;
-    }
-    if (total < page * limit) {
-      page = 1;
-      limit = 100;
-    }
-    return await this.repo.find({
+
+    let vechileList: Vechile[] = await this.repo.find({
       skip: (page - 1) * limit,
       take: limit,
-      order: { id: 'ASC' },
+      order: { manufactured_date: 'ASC' },
     });
+
+    return new PaginationResponse(totalPage, page, limit, vechileList);
   }
 
   async findOne(id: number): Promise<Vechile | null> {
     return await this.repo.findOne({ where: { id: id } });
   }
 
-  async findAllByModel(model: string): Promise<Vechile[]> {
+  async findAllByModel(
+    model: string,
+    pageArg: number,
+    limitArg: number,
+  ): Promise<PaginationResponse> {
     if (!model || model.trim() === '') {
-      return this.repo.find();
+      return this.findAll(pageArg, limitArg);
     }
-    return await this.repo.find({
+
+    const total = await this.repo.count({
       where: { car_model: ILike(`${model.trim()}%`) },
     });
+
+    let limit = limitArg > 0 ? limitArg : 100;
+    let totalPage = Math.ceil(total / limit);
+    if (totalPage === 0) totalPage = 1;
+    let page = pageArg > 0 ? pageArg : 1;
+
+    if (page > totalPage) {
+      page = totalPage > 0 ? totalPage : 1;
+    }
+
+    let vechileList: Vechile[] = await this.repo.find({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { manufactured_date: 'ASC' },
+      where: { car_model: ILike(`${model.trim()}%`) },
+    });
+
+    return new PaginationResponse(totalPage, page, limit, vechileList);
   }
 
   async findOneByVIN(vin: string): Promise<Vechile | null> {
@@ -333,6 +351,7 @@ export class VechileService {
         return new ResponseDTO(false, 'ID not Found');
       }
       await this.repo.delete({ id: id });
+      return new ResponseDTO(true, 'Vechile Deleted Successfully');
     } catch (error) {
       return new ResponseDTO(false, 'Internal Server Error');
     }

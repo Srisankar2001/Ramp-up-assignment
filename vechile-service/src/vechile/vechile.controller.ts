@@ -37,7 +37,7 @@ export class VechileController {
   async download(
     @Body('fileName') fileName: string,
     @Res() res: Response,
-  ): Promise<ResponseDTO> {
+  ): Promise<Response> {
     return this.vechileService.download(fileName, res);
   }
 }

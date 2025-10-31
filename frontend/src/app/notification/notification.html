@@ -1,0 +1,29 @@
+<div *ngIf="isShow()" class="div-container">
+  <header (click)="onHeaderClick()">
+    <h1>Notifications</h1>
+    <span *ngIf="count()">
+      {{ count() > 9 ? '9+' : count() }}
+    </span>
+  </header>
+  <div *ngIf="isOpen()">
+    <ul *ngIf="notifications().length > 0; else noData">
+      <li *ngFor="let n of notifications()">
+        <div class="notification-body">
+          <div *ngIf="n.status" class="notification-success">
+            <h4>{{ n.age }} Vechiles Document Ready</h4>
+            <button (click)="onDownload(n.fileName!)">Click Here To Download</button>
+            <span>Date : {{ n.date }} Time : {{ n.time }}</span>
+          </div>
+          <div *ngIf="!n.status" class="notification-failure">
+            <h4>{{ n.age }} Vechiles Document Ready</h4>
+            <span>Date : {{ n.date }} Time : {{ n.time }}</span>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <ng-template #noData>
+    <p>No Notifications</p>
+  </ng-template>
+</div>

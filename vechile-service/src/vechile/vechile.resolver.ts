@@ -11,6 +11,7 @@ import { Vechile } from './entities/vechile.entity';
 import { CreateVechileInput } from './dto/create-vechile.input';
 import { UpdateVechileInput } from './dto/update-vechile.input';
 import { ResponseDTO } from './dto/response.output';
+import { PaginationResponse } from './dto/paginationResponse.output';
 
 @Resolver(() => Vechile)
 export class VechileResolver {
@@ -23,7 +24,7 @@ export class VechileResolver {
     return this.vechileService.create(createVechileInput);
   }
 
-  @Query(() => [Vechile], { name: 'getAllVechile' })
+  @Query(() => PaginationResponse, { name: 'getAllVechile' })
   async findAll(
     @Args('page', { type: () => Int }) page: number,
     @Args('limit', { type: () => Int }) limit: number,
@@ -31,9 +32,13 @@ export class VechileResolver {
     return this.vechileService.findAll(page, limit);
   }
 
-  @Query(() => [Vechile], { name: 'getAllVechileByModel' })
-  async findAllByModel(@Args('model') model: string) {
-    return this.vechileService.findAllByModel(model);
+  @Query(() => PaginationResponse, { name: 'getAllVechileByModel' })
+  async findAllByModel(
+    @Args('model') model: string,
+    @Args('page', { type: () => Int }) page: number,
+    @Args('limit', { type: () => Int }) limit: number,
+  ) {
+    return this.vechileService.findAllByModel(model, page, limit);
   }
 
   @Query(() => Vechile, { name: 'getVechile', nullable: true })

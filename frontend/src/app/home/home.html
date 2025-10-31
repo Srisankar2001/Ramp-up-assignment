@@ -1,11 +1,320 @@
-<h1>Vehicles List</h1>
+<div class="div-container">
+  <header>
+    <h1>Vehicle List</h1>
+    <nav>
+      <input
+        type="text"
+        name="searchInput"
+        [ngModel]="searchInput()"
+        (ngModelChange)="searchInput.set($event); onSearch()"
+      />
+      <button class="create-btn" (click)="createForm.set(true)">Create</button>
+      <button class="import-btn" (click)="importForm.set(true)">Import File</button>
+      <button class="export-btn" (click)="exportForm.set(true)">Export Data</button>
+    </nav>
+  </header>
 
-<ul *ngIf="vechiles.length > 0; else noData">
-  <li *ngFor="let v of vechiles">
-    {{ v.id }} - {{ v.first_name }} - {{ v.vin }}
-  </li>
-</ul>
+  <ul *ngIf="vechiles().length > 0; else noData">
+    <li>
+      <div class="div-data-title">
+        <span>ID</span>
+        <span>First Name</span>
+        <span>Last Name</span>
+        <span>VIN</span>
+        <span>Car Make</span>
+        <span>Car Model</span>
+        <span>Age</span>
+        <span>Manufactured Date</span>
+      </div>
+    </li>
+    <li *ngFor="let v of vechiles()" class="div-data-li">
+      <div class="div-data" (click)="onClick(v.vin)">
+        <span>{{ v.id }}</span>
+        <span>{{ v.first_name }}</span>
+        <span>{{ v.last_name }}</span>
+        <span>{{ v.vin }}</span>
+        <span>{{ v.car_make }}</span>
+        <span>{{ v.car_model }}</span>
+        <span>{{ v.age_of_vechile }}</span>
+        <span>{{ v.manufactured_date }}</span>
+      </div>
+      <div class="div-btn">
+        <button class="update-btn" (click)="updateForm.set(v.id); onUpdate()">Update</button>
+        <button class="delete-btn" (click)="deleteForm.set(v.id)">Delete</button>
+      </div>
+    </li>
+  </ul>
 
-<ng-template #noData>
-  <p>No vehicles found.</p>
-</ng-template>
+  <div class="import-form" *ngIf="importForm()">
+    <h1>Import Form</h1>
+    <form (submit)="onImportSubmit()" (reset)="onReset()">
+      <div class="input-container">
+        <div class="div-input">
+          <label>Select the File</label>
+          <input
+            type="file"
+            name="fileInput"
+            (change)="fileInput.set($any($event.target).files[0])"
+            placeholder="Select File"
+          />
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Import</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="export-form" *ngIf="exportForm()">
+    <h1>Export Form</h1>
+    <form (submit)="onExportSubmit()" (reset)="onReset()">
+      <div class="input-container">
+        <div class="div-input">
+          <label>Age</label>
+          <input
+            type="number"
+            name="ageInput"
+            [value]="ageInput()"
+            (input)="ageInput.set(+$any($event.target).value)"
+            placeholder="Enter Age Here"
+          />
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Export</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="create-form" *ngIf="createForm()">
+    <h1>Create Form</h1>
+    <form (submit)="onCreateSubmit()" (reset)="onReset()">
+      <div class="input-container">
+        <div class="div-input">
+          <label>First Name</label>
+          <input
+            type="text"
+            name="first_name"
+            [value]="vechileInput().first_name"
+            (input)="onChange($event)"
+            placeholder="Enter First Name Here"
+          />
+          <h3 class="error" *ngIf="vechileError().first_name">{{ vechileError().first_name }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Last Name</label>
+          <input
+            type="text"
+            name="last_name"
+            [value]="vechileInput().last_name"
+            (input)="onChange($event)"
+            placeholder="Enter Last Name Here"
+          />
+          <h3 class="error" *ngIf="vechileError().last_name">{{ vechileError().last_name }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            [value]="vechileInput().email"
+            (input)="onChange($event)"
+            placeholder="Enter Email Here"
+          />
+          <h3 class="error" *ngIf="vechileError().email">{{ vechileError().email }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Car Make</label>
+          <input
+            type="text"
+            name="car_make"
+            [value]="vechileInput().car_make"
+            (input)="onChange($event)"
+            placeholder="Enter Car Make Here"
+          />
+          <h3 class="error" *ngIf="vechileError().car_make">{{ vechileError().car_make }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Car Model</label>
+          <input
+            type="text"
+            name="car_model"
+            [value]="vechileInput().car_model"
+            (input)="onChange($event)"
+            placeholder="Enter Car Model Here"
+          />
+          <h3 class="error" *ngIf="vechileError().car_model">{{ vechileError().car_model }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>VIN</label>
+          <input
+            type="text"
+            name="vin"
+            [value]="vechileInput().vin"
+            (input)="onChange($event)"
+            placeholder="Enter VIN Here"
+          />
+          <h3 class="error" *ngIf="vechileError().vin">{{ vechileError().vin }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Manufactured Date</label>
+          <input
+            type="date"
+            name="manufactured_date"
+            [value]="vechileInput().manufactured_date"
+            (input)="onChange($event)"
+            placeholder="Enter Manufactured Date Here"
+          />
+          <h3 class="error" *ngIf="vechileError().manufactured_date">
+            {{ vechileError().manufactured_date }}
+          </h3>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Create</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="update-form" *ngIf="updateForm()">
+    <h1>Update Form</h1>
+    <form (submit)="onUpdateSubmit()" (reset)="onReset()">
+      <div class="input-container">
+        <div class="div-input">
+          <label>First Name</label>
+          <input
+            type="text"
+            name="first_name"
+            [value]="vechileInput().first_name"
+            (input)="onChange($event)"
+            placeholder="Enter First Name Here"
+          />
+          <h3 class="error" *ngIf="vechileError().first_name">{{ vechileError().first_name }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Last Name</label>
+          <input
+            type="text"
+            name="last_name"
+            [value]="vechileInput().last_name"
+            (input)="onChange($event)"
+            placeholder="Enter Last Name Here"
+          />
+          <h3 class="error" *ngIf="vechileError().last_name">{{ vechileError().last_name }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            [value]="vechileInput().email"
+            (input)="onChange($event)"
+            placeholder="Enter Email Here"
+          />
+          <h3 class="error" *ngIf="vechileError().email">{{ vechileError().email }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Car Make</label>
+          <input
+            type="text"
+            name="car_make"
+            [value]="vechileInput().car_make"
+            (input)="onChange($event)"
+            placeholder="Enter Car Make Here"
+          />
+          <h3 class="error" *ngIf="vechileError().car_make">{{ vechileError().car_make }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Car Model</label>
+          <input
+            type="text"
+            name="car_model"
+            [value]="vechileInput().car_model"
+            (input)="onChange($event)"
+            placeholder="Enter Car Model Here"
+          />
+          <h3 class="error" *ngIf="vechileError().car_model">{{ vechileError().car_model }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>VIN</label>
+          <input
+            type="text"
+            name="vin"
+            [value]="vechileInput().vin"
+            (input)="onChange($event)"
+            placeholder="Enter VIN Here"
+          />
+          <h3 class="error" *ngIf="vechileError().vin">{{ vechileError().vin }}</h3>
+        </div>
+
+        <div class="div-input">
+          <label>Manufactured Date</label>
+          <input
+            type="date"
+            name="manufactured_date"
+            [value]="vechileInput().manufactured_date"
+            (input)="onChange($event)"
+            placeholder="Enter Manufactured Date Here"
+          />
+          <h3 class="error" *ngIf="vechileError().manufactured_date">
+            {{ vechileError().manufactured_date }}
+          </h3>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Update</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="delete-form" *ngIf="deleteForm()">
+    <h1>Delete Form</h1>
+    <form (submit)="onDeleteSubmit()" (reset)="onReset()">
+      <div class="input-container">
+        <div class="div-input">
+          <label>Do You Want To Delete This Vechile?</label>
+        </div>
+      </div>
+      <div class="input-btn">
+        <button type="submit">Delete</button>
+        <button type="reset">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <footer>
+    <div class="pagination">
+      <button (click)="onPageSub()"><</button>
+      {{ this.page() }} / {{ this.totalPage() }}
+      <button (click)="onPageAdd()">></button>
+    </div>
+    <div class="result">
+      <span>Result per page</span>
+      <input
+        type="number"
+        name="limitInput"
+        [ngModel]="limitInput()"
+        (ngModelChange)="limitInput.set($event); onLimitChange()"
+      />
+    </div>
+  </footer>
+
+  <ng-template #noData>
+    <p>No Vehicles Found</p>
+  </ng-template>
+</div>

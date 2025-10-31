@@ -22,6 +22,13 @@ export class AppController {
     this.appService.sendDownloadFailureNotification(userId, age);
   }
 
+  @Post('validation-failure')
+  sendValidationFailureNotification(
+    @Body('userId') userId: string
+  ): void {
+    this.appService.sendValidationFailureNotification(userId);
+  }
+
   @Post('import-success')
   sendImportSuccessNotification(
     @Body('userId') userId: string,

@@ -1,14 +1,14 @@
-<div>
+<div class="div-container">
   <h1>Login Page</h1>
   <form (submit)="onSubmit($event)" (reset)="onReset()">
-    <div>
+    <div class="input-div">
       <label>User ID</label>
-      <input type="text" [(ngModel)]="userId" name="userId" />
+      <input type="text" [(ngModel)]="userId" name="userId" placeholder="Enter Your ID"/>
       <h3>{{ error }}</h3>
     </div>
-    <div>
-      <input type="submit" value="Submit" />
-      <input type="reset" value="Clear" />
+    <div class="btn-div">
+      <input class="submit-btn" type="submit" value="Submit" />
+      <input class="reset-btn" type="reset" value="Clear" />
     </div>
   </form>
 </div>
