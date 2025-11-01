@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 export class Home implements OnInit {
   vechiles = signal<Vechile[]>([]);
   searchInput = signal('');
+  vinInput = signal('');
   limitInput = signal(20);
   totalPage = signal(1);
   page = signal(1);
@@ -86,6 +87,15 @@ export class Home implements OnInit {
       this.router.navigate(['']);
     } else {
       this.fetchVechiles(this.page(), this.limit());
+    }
+  }
+
+  onVINSearch() {
+    const input = this.vinInput() ?? '';
+    if (input.trim() !== '') {
+      this.router.navigate([`/item/${input}`]);
+    } else {
+      alert('VIN Field is Empty');
     }
   }
 

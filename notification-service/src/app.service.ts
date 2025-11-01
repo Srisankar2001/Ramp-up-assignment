@@ -17,8 +17,12 @@ export class AppService {
     this.gateway.sendDownloadFailureNotification(userId, age);
   }
 
-  sendValidationFailureNotification(userId: string) {
-    this.gateway.sendValidationFailureNotification(userId);
+  sendValidationFailureNotification(
+    userId: string,
+    fileName: string,
+    errors: string[],
+  ) {
+    this.gateway.sendValidationFailureNotification(userId, fileName, errors);
   }
 
   sendImportFailureNotification(

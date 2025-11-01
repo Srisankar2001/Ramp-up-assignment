@@ -37,7 +37,6 @@ export class Notification implements OnDestroy {
   connect(): void {
     const userId = this.context.getUserId();
     if (!userId) {
-      console.error('Cannot connect: User ID not found.');
       return;
     }
     this.disconnect();
@@ -53,6 +52,7 @@ export class Notification implements OnDestroy {
     this.socket.on('Download-Success-Event', (data) => {
       this.notifications.update((v) => [
         {
+          type: 'export',
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
           age: data.age,
@@ -67,10 +67,26 @@ export class Notification implements OnDestroy {
     this.socket.on('Download-Failure-Event', (data) => {
       this.notifications.update((v) => [
         {
+          type: 'export',
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString(),
           age: data.age,
           status: false,
+        },
+        ...v,
+      ]);
+      if (!this.isOpen()) this.count.update((i) => i + 1);
+    });
+
+    this.socket.on('Validation-Failure-Event', (data) => {
+      this.notifications.update((v) => [
+        {
+          type: 'import',
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          status: false,
+          fileName: data.fileName,
+          errors: data.errors,
         },
         ...v,
       ]);
@@ -87,12 +103,14 @@ export class Notification implements OnDestroy {
   onHeaderClick() {
     if (this.isOpen()) {
       this.isOpen.set(false);
-      console.log('Closed');
     } else {
-      this.count.set(0);
       this.isOpen.set(true);
-      console.log('Opened');
+      this.count.set(0);
     }
+  }
+
+  onError(errors: any) {
+    alert(errors.join('\n'));
   }
 
   onDownload(fileName: string) {

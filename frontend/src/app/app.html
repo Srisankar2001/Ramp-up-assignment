@@ -1,7 +1,9 @@
 <div>
-  <nav style="display: none">
-    <a routerLink="">Login</a> | <a routerLink="home">Home</a> |
-    <a routerLink="item">Item</a>
+  <nav *ngIf="isShow()">
+    <a routerLink="" style="display: none">Login</a>
+    <a routerLink="home">Home</a>
+    <a routerLink="item" style="display: none">Item</a>
+    <a routerLink="record">Record</a>
   </nav>
   <router-outlet></router-outlet>
   <app-notification></app-notification>

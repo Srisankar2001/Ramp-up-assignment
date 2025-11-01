@@ -32,12 +32,12 @@ export class NotificationAPI {
     }
   }
 
-  async sendValidationFailureNotification(userId) {
+  async sendValidationFailureNotification(userId, fileName, errors) {
     try {
       await firstValueFrom(
         this.httpService.post(
           'http://localhost:4004/notification/validation-failure',
-          { userId },
+          { userId, fileName, errors },
         ),
       );
     } catch (error) {

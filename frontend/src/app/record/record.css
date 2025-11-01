@@ -20,6 +20,40 @@ header h1 {
   font-weight: 600;
 }
 
+nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+header select {
+  padding: 8px 12px;
+  font-size: 15px;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+header select:hover {
+  border-color: #45a049;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+}
+
+header select:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 6px rgba(46, 125, 50, 0.5);
+}
+
+header option {
+  background-color: #fff;
+  color: #333;
+  font-size: 15px;
+}
+
 .create-btn {
   background-color: #4caf50;
   color: white;
@@ -223,10 +257,43 @@ table {
   background-color: #e53935;
 }
 
-.empty{
-  font-size: 16px;
+p {
   text-align: center;
+  font-size: 16px;
   color: #777;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
+.div-input select {
+  border: none;
+  border-bottom: 2px solid #4caf50;
+  padding: 6px 8px;
+  font-size: 15px;
+  outline: none;
+  background: transparent;
+  appearance: none;
+  transition: border-color 0.3s, background-color 0.3s;
+  cursor: pointer;
+}
+
+.div-input select:hover {
+  border-color: #45a049;
+  background-color: #f9f9f9;
+}
+
+.div-input select:focus {
+  border-color: #45a049;
+  background-color: #fff;
+}
+
+.div-input select::-ms-expand {
+  display: none; 
+}
+
+.div-input select.error {
+  border-color: #f44336;
+}
+
+.div-input select option {
+  padding: 6px 8px;
+}

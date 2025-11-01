@@ -36,6 +36,7 @@ export class VechileService {
       stream
         .pipe(csv.parse({ headers: true, trim: true }))
         .on('error', (error) => {
+          console.log(error)
           reject(new ResponseDTO(false, 'CSV Parsing Failed'));
         })
         .on('data', (row) => {
@@ -44,7 +45,7 @@ export class VechileService {
         .on('end', () => {
           this.validateQueue.add(
             'validate-batch',
-            { userId, vechileList: rows },
+            { userId, vechileList: rows, fileName: file.originalname },
             {
               attempts: 3,
               backoff: {
@@ -204,6 +205,10 @@ export class VechileService {
     });
 
     return new PaginationResponse(totalPage, page, limit, vechileList);
+  }
+
+  async findAllForVIN(): Promise<Vechile[]> {
+    return await this.repo.find();
   }
 
   async findOne(id: number): Promise<Vechile | null> {

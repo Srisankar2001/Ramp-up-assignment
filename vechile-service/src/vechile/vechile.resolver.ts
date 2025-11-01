@@ -32,6 +32,11 @@ export class VechileResolver {
     return this.vechileService.findAll(page, limit);
   }
 
+  @Query(() => [Vechile], { name: 'getAllVechileForVIN' })
+  async findAllForVIN() {
+    return this.vechileService.findAllForVIN();
+  }
+
   @Query(() => PaginationResponse, { name: 'getAllVechileByModel' })
   async findAllByModel(
     @Args('model') model: string,

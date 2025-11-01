@@ -1,35 +1,23 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Record } from '../model/record.model';
-import { Vechile } from '../model/vechile.model';
 import { RecordInput } from '../model/recordInput.model';
 import { RecordError } from '../model/recordError.model';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Context } from '../context';
 import { AppService } from '../app-service';
+import { Router } from '@angular/router';
+import { Record } from '../model/record.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-item',
+  selector: 'app-record',
   imports: [CommonModule, FormsModule],
-  templateUrl: './item.html',
-  styleUrl: './item.css',
+  templateUrl: './record.html',
+  styleUrl: './record.css',
 })
-export class Item implements OnInit {
-  vin = signal<string>('');
-  vechile = signal<Vechile>({
-    id: 0,
-    first_name: '',
-    last_name: '',
-    email: '',
-    car_make: '',
-    car_model: '',
-    vin: '',
-    manufactured_date: '',
-    age_of_vechile: 0,
-  });
-
+export class RecordClass implements OnInit {
+  vins = signal<string[]>([]);
   records = signal<Record[]>([]);
+  selectedVIN = signal<string>('');
   createForm = signal<boolean>(false);
   updateForm = signal<number | null>(null);
   deleteForm = signal<number | null>(null);
@@ -40,37 +28,21 @@ export class Item implements OnInit {
   });
 
   recordError = signal<RecordError>({
+    vin: null,
     date: null,
     maintenance: null,
   });
 
   constructor(
     private readonly router: Router,
-    private readonly route: ActivatedRoute,
     private readonly context: Context,
     private readonly appService: AppService
   ) {}
 
   fetchRecords() {
-    this.appService.getRecordByVIN(this.vin()).subscribe({
+    this.appService.getAllRecord().subscribe({
       next: (data) => {
-        if (data) {
-          this.records.set(data.records ?? []);
-          this.vechile.set({
-            id: data.id,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            email: data.email,
-            car_make: data.car_make,
-            car_model: data.car_model,
-            vin: data.vin,
-            manufactured_date: data.manufactured_date,
-            age_of_vechile: data.age_of_vechile,
-          });
-        } else {
-          alert("VIN Doesn't Exist");
-          this.router.navigate(['/home']);
-        }
+        this.records.set(data);
       },
       error: (err) => {
         this.router.navigate(['/home']);
@@ -78,26 +50,42 @@ export class Item implements OnInit {
     });
   }
 
+  fetchVINs() {
+    this.appService.getAllVIN().subscribe({
+      next: (data: { vin: string }[]) => {
+        const vinArray = data.map((item: { vin: string }) => item.vin);
+        this.vins.set(vinArray);
+      },
+      error: (err) => {
+        this.router.navigate(['/home']);
+      },
+    });
+  }
+
+  getFilteredRecords() {
+    const vin = this.selectedVIN();
+    return vin !== '' && vin !== 'Select The VIN'
+      ? this.records().filter((r) => r.vin === vin)
+      : this.records();
+  }
+
   ngOnInit(): void {
     if (this.context.getUserId() === '') {
       this.router.navigate(['']);
     }
-
-    const id = this.route.snapshot.paramMap.get('id');
-
-    if (!id) {
-      this.router.navigate(['/home']);
-    } else {
-      this.vin.set(id);
-      this.recordInput.set({ vin: this.vin(), date: '', maintenance: '' });
-      this.fetchRecords();
-    }
+    this.fetchRecords();
+    this.fetchVINs();
   }
 
   onChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const { name, value } = target;
     this.recordInput.update((v) => ({ ...v, [name]: value }));
+  }
+
+  onVINChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedVIN.set(value);
   }
 
   onReset() {
@@ -128,6 +116,9 @@ export class Item implements OnInit {
   validator(): boolean {
     const input = this.recordInput();
     const errors: any = {};
+    if (input.vin.trim() === '' || input.vin.trim() === 'Select The VIN') {
+      errors.vin = 'VIN Field is Empty';
+    }
     if (input.maintenance.trim() === '') {
       errors.maintenance = 'Maintence Field is Empty';
     }
@@ -139,6 +130,7 @@ export class Item implements OnInit {
     }
 
     this.recordError.set({
+      vin: errors.vin ?? null,
       date: errors.date ?? null,
       maintenance: errors.maintenance ?? null,
     });

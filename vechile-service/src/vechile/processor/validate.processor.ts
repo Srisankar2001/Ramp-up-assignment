@@ -18,7 +18,7 @@ export class VechileValidateProcessor extends WorkerHost {
   async process(job: Job<any, any, string>) {
     let errorLog: string[] = [];
     let flag: boolean = false;
-    const { userId, vechileList } = job.data;
+    const { userId, vechileList, fileName } = job.data;
     for (let i = 0; i < vechileList.length; i++) {
       try {
         if (
@@ -42,13 +42,7 @@ export class VechileValidateProcessor extends WorkerHost {
           errorLog.push('Email Error : ' + JSON.stringify(vechileList[i]));
           continue;
         }
-        if (
-          !vechileList[i].car_make ||
-          vechileList[i].car_make.trim() == ''
-          // isNaN(Number(vechileList[i].car_make.trim())) ||
-          // Number(vechileList[i].car_make) > new Date().getFullYear() ||
-          // Number(vechileList[i].car_make) < 1900
-        ) {
+        if (!vechileList[i].car_make || vechileList[i].car_make.trim() == '') {
           flag = true;
           errorLog.push('Car Make Error : ' + JSON.stringify(vechileList[i]));
           continue;
@@ -109,7 +103,6 @@ export class VechileValidateProcessor extends WorkerHost {
 
     if (!flag) {
       for (let i = 0; i < vechileList.length; i += this.BATCH_SIZE) {
-        console.log('Validate Success');
         this.importQueue.add(
           'import-batch',
           vechileList.slice(i, i + this.BATCH_SIZE),
@@ -122,6 +115,12 @@ export class VechileValidateProcessor extends WorkerHost {
           },
         );
       }
+    } else {
+      this.notificationAPI.sendValidationFailureNotification(
+        userId,
+        fileName,
+        errorLog,
+      );
     }
   }
 }

@@ -5,9 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [
-    FormsModule
-  ],
+  imports: [FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -25,13 +23,12 @@ export class Login implements OnInit {
     this.userId = '';
   }
 
-  onSubmit(event?:Event) {
-    event?.preventDefault()
+  onSubmit(event?: Event) {
+    event?.preventDefault();
     if (this.userId.trim() === '') {
       this.error = 'User ID Field is Empty';
     } else {
       this.context.setUserId(this.userId.trim());
-      console.log(this.context.getUserId());
       this.router.navigate(['/home']);
     }
   }

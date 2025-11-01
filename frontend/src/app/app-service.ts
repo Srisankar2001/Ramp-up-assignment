@@ -116,6 +116,25 @@ const GET_RECORDS = gql`
   }
 `;
 
+const GET_All_VIN = gql`
+  query GetAllVechileForVIN {
+    getAllVechileForVIN {
+      vin
+    }
+  }
+`;
+
+const GET_All_RECORD = gql`
+  query GetAllRecord {
+    getAllRecord {
+      id
+      vin
+      date
+      maintenance
+    }
+  }
+`;
+
 const CREATE_RECORD = gql`
   mutation CreateRecord($input: CreateRecordInput!) {
     createRecord(createRecordInput: $input) {
@@ -255,6 +274,24 @@ export class AppService {
         fetchPolicy: 'network-only',
       })
       .pipe(map((result) => result.data.getVechileByVIN));
+  }
+
+  getAllRecord(): Observable<any> {
+    return this.apollo
+      .query<any>({
+        query: GET_All_RECORD,
+        fetchPolicy: 'network-only',
+      })
+      .pipe(map((result) => result.data.getAllRecord));
+  }
+
+  getAllVIN(): Observable<any> {
+    return this.apollo
+      .query<any>({
+        query: GET_All_VIN,
+        fetchPolicy: 'network-only',
+      })
+      .pipe(map((result) => result.data.getAllVechileForVIN));
   }
 
   createRecord(record: RecordInput): Observable<any> {

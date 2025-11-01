@@ -7,15 +7,20 @@
   </header>
   <div *ngIf="isOpen()">
     <ul *ngIf="notifications().length > 0; else noData">
-      <li *ngFor="let n of notifications()">
+      <li *ngFor="let n of notifications(); let i = index">
         <div class="notification-body">
-          <div *ngIf="n.status" class="notification-success">
-            <h4>{{ n.age }} Vechiles Document Ready</h4>
+          <div *ngIf="n.status && n.type == 'export'" class="notification-success">
+            <h4>{{ n.age }} Years Vechiles Document Prepared</h4>
             <button (click)="onDownload(n.fileName!)">Click Here To Download</button>
             <span>Date : {{ n.date }} Time : {{ n.time }}</span>
           </div>
-          <div *ngIf="!n.status" class="notification-failure">
-            <h4>{{ n.age }} Vechiles Document Ready</h4>
+          <div *ngIf="!n.status && n.type == 'export'" class="notification-failure">
+            <h4>{{ n.age }} Years Vechiles Document Not Prepared</h4>
+            <span>Date : {{ n.date }} Time : {{ n.time }}</span>
+          </div>
+          <div *ngIf="!n.status && n.type == 'import'" class="notification-failure">
+            <h4>{{ n.fileName }} Import Validation Failed</h4>
+            <button (click)="onError(n.errors)">See Error Logs</button>
             <span>Date : {{ n.date }} Time : {{ n.time }}</span>
           </div>
         </div>
@@ -23,6 +28,9 @@
     </ul>
   </div>
 
+  <!-- <div *ngIf="isError()" class="popup">
+    <li *ngFor="let e of Errors()">{{ e }}</li>
+  </div> -->
   <ng-template #noData>
     <p>No Notifications</p>
   </ng-template>

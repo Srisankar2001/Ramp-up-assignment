@@ -2,26 +2,27 @@
   <header>
     <h1>Record List</h1>
     <nav>
+      <select name="vin" (change)="onVINChange($event)">
+        <option [value]="">Select The VIN</option>
+        <option *ngFor="let v of vins()" [value]="v">
+          {{ v }}
+        </option>
+      </select>
       <button class="create-btn" (click)="createForm.set(true)">Create</button>
     </nav>
   </header>
 
-  <div class="div-data-main">
-    <span>VIN : {{ vechile().vin }}</span>
-    <span>Car Make : {{ vechile().car_make }}</span>
-    <span>Car Model : {{ vechile().car_model }}</span>
-    <span>Age : {{ vechile().age_of_vechile }}</span>
-  </div>
-
   <table *ngIf="records().length > 0; else noData">
     <tr class="div-data-title">
       <th>ID</th>
+      <th>VIN</th>
       <th>Date</th>
       <th>Maintenance</th>
       <th class="div-data-title-action">Action</th>
     </tr>
-    <tr *ngFor="let v of records()" class="div-data-li">
+    <tr *ngFor="let v of getFilteredRecords()" class="div-data-li">
       <td>{{ v.id }}</td>
+      <td>{{ v.vin }}</td>
       <td>{{ v.date }}</td>
       <td>{{ v.maintenance }}</td>
       <td class="div-btn">
@@ -37,6 +38,14 @@
     <form (submit)="onCreateSubmit()" (reset)="onReset()">
       <h1>Create Form</h1>
       <div class="input-container">
+        <div class="div-input">
+          <label>VIN</label>
+          <select name="vin" (change)="onChange($event)">
+            <option [value]="">Select The VIN</option>
+            <option *ngFor="let v of vins()" [value]="v">{{ v }}</option>
+          </select>
+          <h3 class="error" *ngIf="recordError().vin">{{ recordError().vin }}</h3>
+        </div>
         <div class="div-input">
           <label>Maintenance</label>
           <input
@@ -74,6 +83,14 @@
     <form (submit)="onUpdateSubmit()" (reset)="onReset()">
       <h1>Update Form</h1>
       <div class="input-container">
+        <div class="div-input">
+          <label>VIN</label>
+          <select name="vin" (change)="onChange($event)">
+            <option [value]="">Select The VIN</option>
+            <option *ngFor="let v of vins()" [value]="v">{{ v }}</option>
+          </select>
+          <h3 class="error" *ngIf="recordError().vin">{{ recordError().vin }}</h3>
+        </div>
         <div class="div-input">
           <label>Maintenance</label>
           <input
@@ -123,6 +140,6 @@
   </div>
 
   <ng-template #noData>
-    <p class="empty">No Records Found</p>
+    <p>No Records Found</p>
   </ng-template>
 </div>

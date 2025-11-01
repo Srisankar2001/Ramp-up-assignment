@@ -24,9 +24,11 @@ export class AppController {
 
   @Post('validation-failure')
   sendValidationFailureNotification(
-    @Body('userId') userId: string
+    @Body('userId') userId: string,
+    @Body('fileName') fileName: string,
+    @Body('errors') errors: string[],
   ): void {
-    this.appService.sendValidationFailureNotification(userId);
+    this.appService.sendValidationFailureNotification(userId,fileName, errors);
   }
 
   @Post('import-success')
