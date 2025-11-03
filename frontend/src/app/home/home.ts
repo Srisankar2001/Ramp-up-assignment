@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./home.css'],
 })
 export class Home implements OnInit {
+  today = new Date().toISOString().split('T')[0];
+
   vechiles = signal<Vechile[]>([]);
   searchInput = signal('');
   vinInput = signal('');
@@ -82,6 +84,15 @@ export class Home implements OnInit {
     });
   }
 
+  fetchVechileByVIN(vin: string) {
+    this.appService.getVechileByVIN(vin).subscribe({
+      next: (data) => {
+        this.vechiles.set([data]);
+      },
+      error: (err) => console.error(err),
+    });
+  }
+
   ngOnInit(): void {
     if (this.context.getUserId() === '') {
       this.router.navigate(['']);
@@ -93,9 +104,9 @@ export class Home implements OnInit {
   onVINSearch() {
     const input = this.vinInput() ?? '';
     if (input.trim() !== '') {
-      this.router.navigate([`/item/${input}`]);
+      this.fetchVechileByVIN(input);
     } else {
-      alert('VIN Field is Empty');
+      this.fetchVechiles(this.page(), this.limit());
     }
   }
 
@@ -280,6 +291,7 @@ export class Home implements OnInit {
           }
         },
         error: (err) => {
+          console.log(err);
           alert(err.data?.message ?? 'Internal Server Error');
         },
       });

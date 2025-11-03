@@ -26,7 +26,10 @@
       <td>{{ v.date }}</td>
       <td>{{ v.maintenance }}</td>
       <td class="div-btn">
-        <button class="update-btn" (click)="updateForm.set(v.id); onUpdate(v.date, v.maintenance)">
+        <button
+          class="update-btn"
+          (click)="updateForm.set(v.id); onUpdate(v.vin, v.date, v.maintenance)"
+        >
           Update
         </button>
         <button class="delete-btn" (click)="deleteForm.set(v.id)">Delete</button>
@@ -66,6 +69,7 @@
             [value]="recordInput().date"
             (input)="onChange($event)"
             placeholder="Enter Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="recordError().date">
             {{ recordError().date }}
@@ -86,7 +90,7 @@
         <div class="div-input">
           <label>VIN</label>
           <select name="vin" (change)="onChange($event)">
-            <option [value]="">Select The VIN</option>
+            <option [value]="recordInput().vin">{{ recordInput().vin }}</option>
             <option *ngFor="let v of vins()" [value]="v">{{ v }}</option>
           </select>
           <h3 class="error" *ngIf="recordError().vin">{{ recordError().vin }}</h3>
@@ -111,6 +115,7 @@
             [value]="recordInput().date"
             (input)="onChange($event)"
             placeholder="Enter Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="recordError().date">
             {{ recordError().date }}

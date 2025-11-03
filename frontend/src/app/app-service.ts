@@ -67,6 +67,22 @@ const GET_VECHILE_BY_ID = gql`
   }
 `;
 
+const GET_VECHILE_BY_VIN = gql`
+  query GetVechileByVIN($vin: String!) {
+    getVechileByVIN(vin: $vin) {
+      vin
+      id
+      first_name
+      last_name
+      email
+      car_make
+      car_model
+      manufactured_date
+      age_of_vechile
+    }
+  }
+`;
+
 const CREATE_VECHILE = gql`
   mutation CreateVechile($input: CreateVechileInput!) {
     createVechile(createVechileInput: $input) {
@@ -218,6 +234,16 @@ export class AppService {
         fetchPolicy: 'network-only',
       })
       .pipe(map((result) => result.data.getVechile));
+  }
+
+  getVechileByVIN(vin: string): Observable<any> {
+    return this.apollo
+      .query<any>({
+        query: GET_VECHILE_BY_VIN,
+        variables: { vin },
+        fetchPolicy: 'network-only',
+      })
+      .pipe(map((result) => result.data.getVechileByVIN));
   }
 
   createVechile(vechile: vechileInput): Observable<any> {

@@ -101,16 +101,16 @@ export class Notification implements OnDestroy {
   }
 
   onHeaderClick() {
-    if (this.isOpen()) {
-      this.isOpen.set(false);
-    } else {
-      this.isOpen.set(true);
-      this.count.set(0);
-    }
+    this.isOpen.set(true);
+    this.count.set(0);
+  }
+
+  onCloseClick() {
+    this.isOpen.set(false);
   }
 
   onError(errors: any) {
-    alert(errors.join('\n'));
+    alert(errors.join('\n\n'));
   }
 
   onDownload(fileName: string) {

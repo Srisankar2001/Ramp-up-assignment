@@ -16,6 +16,8 @@ import { AppService } from '../app-service';
   styleUrl: './item.css',
 })
 export class Item implements OnInit {
+  today = new Date().toISOString().split('T')[0];
+
   vin = signal<string>('');
   vechile = signal<Vechile>({
     id: 0,

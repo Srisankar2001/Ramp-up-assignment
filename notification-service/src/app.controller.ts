@@ -28,23 +28,6 @@ export class AppController {
     @Body('fileName') fileName: string,
     @Body('errors') errors: string[],
   ): void {
-    this.appService.sendValidationFailureNotification(userId,fileName, errors);
-  }
-
-  @Post('import-success')
-  sendImportSuccessNotification(
-    @Body('userId') userId: string,
-    @Body('fileName') fileName: string,
-  ): void {
-    this.appService.sendImportSuccessNotification(userId, fileName);
-  }
-
-  @Post('import-failure')
-  sendImportFailureNotification(
-    @Body('userId') userId: string,
-    @Body('errorLog') errorLog: string[],
-    @Body('fileName') fileName: string,
-  ): void {
-    this.appService.sendImportFailureNotification(userId, errorLog, fileName);
+    this.appService.sendValidationFailureNotification(userId, fileName, errors);
   }
 }

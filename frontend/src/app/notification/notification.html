@@ -1,9 +1,12 @@
 <div *ngIf="isShow()" class="div-container">
   <header (click)="onHeaderClick()">
-    <h1>Notifications</h1>
-    <span *ngIf="count()">
-      {{ count() > 9 ? '9+' : count() }}
-    </span>
+    <h3 *ngIf="isOpen()" class="close-btn" (click)="onCloseClick(); $event.stopPropagation()">×</h3>
+    <div class="header-center">
+      <h1>Notifications</h1>
+      <span *ngIf="count()">
+        {{ count() > 9 ? '9+' : count() }}
+      </span>
+    </div>
   </header>
   <div *ngIf="isOpen()">
     <ul *ngIf="notifications().length > 0; else noData">

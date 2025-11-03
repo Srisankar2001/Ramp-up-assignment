@@ -7,7 +7,7 @@ import { NotificationAPI } from '../apis/notification.api';
 
 @Processor('Validate-Queue')
 export class VechileValidateProcessor extends WorkerHost {
-  private BATCH_SIZE: number = 10;
+  private BATCH_SIZE: number = 100;
   constructor(
     @InjectRepository(Vechile) private readonly repo: Repository<Vechile>,
     @InjectQueue('Import-Queue') private readonly importQueue: Queue,
@@ -26,39 +26,69 @@ export class VechileValidateProcessor extends WorkerHost {
           vechileList[i].first_name.trim() == ''
         ) {
           flag = true;
-          errorLog.push('First Name Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'First Name Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         }
         if (
           !vechileList[i].last_name ||
           vechileList[i].last_name.trim() == ''
         ) {
           flag = true;
-          errorLog.push('Last Name Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'Last Name Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         }
         if (!vechileList[i].email || vechileList[i].email.trim() == '') {
           flag = true;
-          errorLog.push('Email Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'Email Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         }
         if (!vechileList[i].car_make || vechileList[i].car_make.trim() == '') {
           flag = true;
-          errorLog.push('Car Make Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'Car Make Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         }
         if (
           !vechileList[i].car_model ||
           vechileList[i].car_model.trim() == ''
         ) {
           flag = true;
-          errorLog.push('Car Model Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'Car Model Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         }
         if (!vechileList[i].vin || vechileList[i].vin.trim() == '') {
           flag = true;
-          errorLog.push('VIN Error : ' + JSON.stringify(vechileList[i]));
-          continue;
+          errorLog.push(
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'VIN Error : ' +
+              JSON.stringify(vechileList[i]),
+          );
         } else {
           const isVinExist = await this.repo.exists({
             where: { vin: vechileList[i].vin.trim().toUpperCase() },
@@ -66,9 +96,12 @@ export class VechileValidateProcessor extends WorkerHost {
           if (isVinExist) {
             flag = true;
             errorLog.push(
-              'VIN Duplicate Error : ' + JSON.stringify(vechileList[i]),
+              '[ Row : ' +
+                Number(i + 1) +
+                ' ] ' +
+                'VIN Duplicate Error : ' +
+                JSON.stringify(vechileList[i]),
             );
-            continue;
           }
           if (
             vechileList.find(
@@ -77,9 +110,12 @@ export class VechileValidateProcessor extends WorkerHost {
           ) {
             flag = true;
             errorLog.push(
-              'VIN Duplicate in List Error : ' + JSON.stringify(vechileList[i]),
+              '[ Row : ' +
+                Number(i + 1) +
+                ' ] ' +
+                'VIN Duplicate in List Error : ' +
+                JSON.stringify(vechileList[i]),
             );
-            continue;
           }
         }
         if (
@@ -90,14 +126,22 @@ export class VechileValidateProcessor extends WorkerHost {
         ) {
           flag = true;
           errorLog.push(
-            'Manufatured Date Error : ' + JSON.stringify(vechileList[i]),
+            '[ Row : ' +
+              Number(i + 1) +
+              ' ] ' +
+              'Manufatured Date Error : ' +
+              JSON.stringify(vechileList[i]),
           );
-          continue;
         }
       } catch (error) {
         flag = true;
-        errorLog.push('Internal Error : ' + JSON.stringify(vechileList[i]));
-        continue;
+        errorLog.push(
+          '[ Row : ' +
+            Number(i + 1) +
+            ' ] ' +
+            'Internal Error : ' +
+            JSON.stringify(vechileList[i]),
+        );
       }
     }
 

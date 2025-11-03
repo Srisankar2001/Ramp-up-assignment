@@ -57,6 +57,7 @@
             [value]="recordInput().date"
             (input)="onChange($event)"
             placeholder="Enter Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="recordError().date">
             {{ recordError().date }}
@@ -94,6 +95,7 @@
             [value]="recordInput().date"
             (input)="onChange($event)"
             placeholder="Enter Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="recordError().date">
             {{ recordError().date }}

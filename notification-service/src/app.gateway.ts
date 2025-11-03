@@ -61,24 +61,4 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .emit('Validation-Failure-Event', { fileName, errors });
     }
   }
-
-  sendImportFailureNotification(
-    userId: string,
-    errorLog: string[],
-    fileName: string,
-  ) {
-    const socketId = this.users.get(userId);
-    if (socketId) {
-      this.server
-        .to(socketId)
-        .emit('Import-Failure-Event', { errorLog, fileName });
-    }
-  }
-
-  sendImportSuccessNotification(userId: string, fileName: string) {
-    const socketId = this.users.get(userId);
-    if (socketId) {
-      this.server.to(socketId).emit('Import-Success-Event', { fileName });
-    }
-  }
 }

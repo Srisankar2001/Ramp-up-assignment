@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './record.css',
 })
 export class RecordClass implements OnInit {
+  today = new Date().toISOString().split('T')[0];
+
   vins = signal<string[]>([]);
   records = signal<Record[]>([]);
   selectedVIN = signal<string>('');
@@ -105,12 +107,13 @@ export class RecordClass implements OnInit {
     this.deleteForm.set(null);
   }
 
-  onUpdate(date: string, maintenance: string) {
+  onUpdate(vin: string, date: string, maintenance: string) {
     this.recordInput.update((v) => ({
-      vin: v.vin,
+      vin: vin,
       date: date,
       maintenance: maintenance,
     }));
+    console.log(this.recordInput());
   }
 
   validator(): boolean {

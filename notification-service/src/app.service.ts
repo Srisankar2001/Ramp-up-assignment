@@ -24,16 +24,4 @@ export class AppService {
   ) {
     this.gateway.sendValidationFailureNotification(userId, fileName, errors);
   }
-
-  sendImportFailureNotification(
-    userId: string,
-    errorLog: string[],
-    fileName: string,
-  ) {
-    this.sendImportFailureNotification(userId, errorLog, fileName);
-  }
-
-  sendImportSuccessNotification(userId: string, fileName: string) {
-    this.gateway.sendImportSuccessNotification(userId, fileName);
-  }
 }

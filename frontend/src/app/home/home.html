@@ -23,40 +23,6 @@
     </nav>
   </header>
 
-  <!-- <ul *ngIf="vechiles().length > 0; else noData">
-    <li>
-      <div class="div-data-title">
-        <span>ID</span>
-        <span>First Name</span>
-        <span>Last Name</span>
-        <span>Email</span>
-        <span>VIN</span>
-        <span>Car Make</span>
-        <span>Car Model</span>
-        <span>Age</span>
-        <span>Manufactured Date</span>
-      </div>
-      <div class="div-btn-title"><span>Action</span></div>
-    </li>
-    <li *ngFor="let v of vechiles()" class="div-data-li">
-      <div class="div-data" (click)="onClick(v.vin)">
-        <span>{{ v.id }}</span>
-        <span>{{ v.first_name }}</span>
-        <span>{{ v.last_name }}</span>
-        <span>{{ v.email }}</span>
-        <span>{{ v.vin }}</span>
-        <span>{{ v.car_make }}</span>
-        <span>{{ v.car_model }}</span>
-        <span>{{ v.age_of_vechile }}</span>
-        <span>{{ v.manufactured_date }}</span>
-      </div>
-      <div class="div-btn">
-        <button class="update-btn" (click)="updateForm.set(v.id); onUpdate()">Update</button>
-        <button class="delete-btn" (click)="deleteForm.set(v.id)">Delete</button>
-      </div>
-    </li>
-  </ul> -->
-
   <table *ngIf="vechiles().length > 0; else noData">
     <thead>
       <tr>
@@ -77,15 +43,22 @@
         <td>{{ v.id }}</td>
         <td>{{ v.first_name }}</td>
         <td>{{ v.last_name }}</td>
-        <td>{{ v.email }}</td>
+        <td>{{ v.email.toLowerCase() }}</td>
         <td>{{ v.vin }}</td>
         <td>{{ v.car_make }}</td>
         <td>{{ v.car_model }}</td>
         <td>{{ v.age_of_vechile }}</td>
         <td>{{ v.manufactured_date }}</td>
         <td class="div-btn">
-          <button class="update-btn" (click)="updateForm.set(v.id); onUpdate()">Update</button>
-          <button class="delete-btn" (click)="deleteForm.set(v.id)">Delete</button>
+          <button
+            class="update-btn"
+            (click)="updateForm.set(v.id); onUpdate(); $event.stopPropagation()"
+          >
+            Update
+          </button>
+          <button class="delete-btn" (click)="deleteForm.set(v.id); $event.stopPropagation()">
+            Delete
+          </button>
         </td>
       </tr>
     </tbody>
@@ -218,6 +191,7 @@
             [value]="vechileInput().manufactured_date"
             (input)="onChange($event)"
             placeholder="Enter Manufactured Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="vechileError().manufactured_date">
             {{ vechileError().manufactured_date }}
@@ -315,6 +289,7 @@
             [value]="vechileInput().manufactured_date"
             (input)="onChange($event)"
             placeholder="Enter Manufactured Date Here"
+            [max]="today"
           />
           <h3 class="error" *ngIf="vechileError().manufactured_date">
             {{ vechileError().manufactured_date }}

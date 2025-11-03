@@ -3,7 +3,7 @@ import { CreateVechileInput } from './dto/create-vechile.input';
 import { UpdateVechileInput } from './dto/update-vechile.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Vechile } from './entities/vechile.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, MoreThanOrEqual, Repository } from 'typeorm';
 import { ResponseDTO } from './dto/response.output';
 import { InjectQueue } from '@nestjs/bullmq';
 import { VechileDTO } from './dto/vechile.dto';
@@ -36,7 +36,7 @@ export class VechileService {
       stream
         .pipe(csv.parse({ headers: true, trim: true }))
         .on('error', (error) => {
-          console.log(error)
+          console.log(error);
           reject(new ResponseDTO(false, 'CSV Parsing Failed'));
         })
         .on('data', (row) => {
@@ -61,6 +61,15 @@ export class VechileService {
 
   async export(age: number, userId: string): Promise<ResponseDTO> {
     try {
+      const data = await this.repo.find({
+        where: { age_of_vechile: MoreThanOrEqual(age) },
+        order: { id: 'ASC' },
+      });
+
+      if (data.length == 0) {
+        return new ResponseDTO(true, `No Records available for ${age} years`);
+      }
+
       this.exportQueue.add(
         'export-batch',
         { age, userId },
@@ -162,9 +171,13 @@ export class VechileService {
         return new ResponseDTO(false, 'Manufactured Date is Empty or Invalid');
       }
 
-      const age: number =
-        new Date().getFullYear() -
-        new Date(createVechileInput.manufactured_date.trim()).getFullYear();
+      const manufacturedDate = new Date(
+        createVechileInput.manufactured_date.trim(),
+      );
+      const today = new Date();
+      const diffInMilliseconds = today.getTime() - manufacturedDate.getTime();
+      const age = diffInMilliseconds / (1000 * 60 * 60 * 24 * 365.25);
+
       const vechile: Vechile = new Vechile(
         createVechileInput.first_name.trim(),
         createVechileInput.last_name.trim(),
@@ -173,12 +186,13 @@ export class VechileService {
         createVechileInput.car_model.trim(),
         createVechileInput.vin.trim().toUpperCase(),
         createVechileInput.manufactured_date.trim(),
-        age,
+        Math.floor(age),
       );
 
       await this.repo.save(vechile);
       return new ResponseDTO(true, 'Vechile Saved Successfully');
     } catch (error) {
+      console.log(error);
       return new ResponseDTO(false, 'Internal Server Error');
     }
   }
@@ -275,29 +289,21 @@ export class VechileService {
         updateVechileInput.last_name.trim() != '' &&
         updateVechileInput.last_name.trim() !== vechile.last_name
       ) {
-        vechile.last_name = updateVechileInput.last_name;
+        vechile.last_name = updateVechileInput.last_name.trim();
       }
       if (
         updateVechileInput.email &&
         updateVechileInput.email.trim() != '' &&
         updateVechileInput.email.trim() !== vechile.email
       ) {
-        vechile.email = updateVechileInput.email;
+        vechile.email = updateVechileInput.email.trim().toUpperCase();
       }
       if (
         updateVechileInput.car_make &&
         updateVechileInput.car_make.trim() != '' &&
         updateVechileInput.car_make.trim() !== vechile.car_make
       ) {
-        if (
-          isNaN(Number(updateVechileInput.car_make.trim())) ||
-          Number(updateVechileInput.car_make) > new Date().getFullYear() ||
-          Number(updateVechileInput.car_make) < 1900
-        ) {
-          return new ResponseDTO(false, 'Car Make is Invalid');
-        } else {
-          vechile.car_make = updateVechileInput.car_make.trim();
-        }
+        vechile.car_make = updateVechileInput.car_make.trim();
       }
       if (
         updateVechileInput.car_model &&
@@ -332,13 +338,17 @@ export class VechileService {
         ) {
           return new ResponseDTO(false, 'Manufactured Date is Invalid');
         } else {
-          const age: number =
-            new Date().getFullYear() -
-            new Date(updateVechileInput.manufactured_date.trim()).getFullYear();
+          const manufacturedDate = new Date(
+            updateVechileInput.manufactured_date.trim(),
+          );
+          const today = new Date();
+          const diffInMilliseconds =
+            today.getTime() - manufacturedDate.getTime();
+          const age = diffInMilliseconds / (1000 * 60 * 60 * 24 * 365.25);
 
           vechile.manufactured_date =
             updateVechileInput.manufactured_date.trim();
-          vechile.age_of_vechile = age;
+          vechile.age_of_vechile = Math.floor(age);
         }
       }
 
