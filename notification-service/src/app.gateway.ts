@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -8,6 +9,8 @@ import { Socket, Server } from 'socket.io';
 
 @WebSocketGateway(80, { namespace: '/notification' })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger: Logger = new Logger(AppGateway.name);
+
   @WebSocketServer()
   server: Server;
 
@@ -15,6 +18,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket) {
     const userId = client.handshake.query.userId as string;
+
+    this.logger.verbose(`Connection Created for userId=${userId}`);
+
     if (userId) {
       this.users.set(userId, client.id);
     }
@@ -24,6 +30,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     for (const [key, val] of this.users) {
       if (val == client.id) {
         this.users.delete(key);
+
+        this.logger.verbose(`Connection Terminated for userId=${key}`);
         break;
       }
     }
@@ -34,6 +42,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     age: number,
     fileName: string,
   ) {
+    this.logger.verbose(
+      `Download Success Notification Method Reqested for userId=${userId}, age=${age}, file=${fileName}`,
+    );
+
     const socketId = this.users.get(userId);
     if (socketId) {
       this.server
@@ -43,6 +55,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   sendDownloadFailureNotification(userId: string, age: number) {
+    this.logger.verbose(
+      `Download Failure Notification Method Reqested for userId=${userId}, age=${age}`,
+    );
+
     const socketId = this.users.get(userId);
     if (socketId) {
       this.server.to(socketId).emit('Download-Failure-Event', { age });
@@ -54,6 +70,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     fileName: string,
     errors: string[],
   ) {
+    this.logger.verbose(
+      `Validation Failure Notification Method Reqested for userId=${userId}, file=${fileName}`,
+    );
+
     const socketId = this.users.get(userId);
     if (socketId) {
       this.server

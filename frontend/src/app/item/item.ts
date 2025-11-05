@@ -156,6 +156,7 @@ export class Item implements OnInit {
         next: (data) => {
           if (data.success) {
             alert(data.message);
+            this.recordInput.update((v) => ({ ...v, date: '', maintenance: '' }));
             this.createForm.set(false);
             this.fetchRecords();
           }
@@ -175,6 +176,7 @@ export class Item implements OnInit {
         next: (data) => {
           if (data.success) {
             alert(data.message);
+            this.recordInput.update((v) => ({ ...v, date: '', maintenance: '' }));
             this.updateForm.set(null);
             this.fetchRecords();
           }

@@ -149,6 +149,7 @@ export class RecordClass implements OnInit {
         next: (data) => {
           if (data.success) {
             alert(data.message);
+            this.recordInput.set({ vin: '', date: '', maintenance: '' });
             this.createForm.set(false);
             this.fetchRecords();
           }
@@ -168,6 +169,7 @@ export class RecordClass implements OnInit {
         next: (data) => {
           if (data.success) {
             alert(data.message);
+            this.recordInput.set({ vin: '', date: '', maintenance: '' });
             this.updateForm.set(null);
             this.fetchRecords();
           }

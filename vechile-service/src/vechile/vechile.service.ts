@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateVechileInput } from './dto/create-vechile.input';
 import { UpdateVechileInput } from './dto/update-vechile.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +18,7 @@ import { PaginationResponse } from './dto/paginationResponse.output';
 
 @Injectable()
 export class VechileService {
+  private readonly logger: Logger = new Logger(VechileService.name);
   private readonly exportDir = path.join(process.cwd(), 'exports');
   constructor(
     @InjectRepository(Vechile)
@@ -30,13 +31,22 @@ export class VechileService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<ResponseDTO> {
+    this.logger.verbose(
+      `Upload Method Reqested for userId=${userId}, file=${file.originalname}`,
+    );
+
     let rows: VechileDTO[] = [];
     const stream = Readable.from(file.buffer);
     return new Promise((resolve, reject) => {
       stream
         .pipe(csv.parse({ headers: true, trim: true }))
         .on('error', (error) => {
-          console.log(error);
+          this.logger.error(
+            `Upload Method Failed for userId=${userId}, file=${file.originalname}, error=${
+              error instanceof Error ? error.stack : JSON.stringify(error)
+            }`,
+          );
+
           reject(new ResponseDTO(false, 'CSV Parsing Failed'));
         })
         .on('data', (row) => {
@@ -54,6 +64,11 @@ export class VechileService {
               },
             },
           );
+
+          this.logger.verbose(
+            `Upload Method Success for userId=${userId}, file=${file.originalname}`,
+          );
+
           resolve(new ResponseDTO(true, 'CSV Parsed Successfully'));
         });
     });
@@ -61,6 +76,10 @@ export class VechileService {
 
   async export(age: number, userId: string): Promise<ResponseDTO> {
     try {
+      this.logger.verbose(
+        `Export Method Reqested for userId=${userId}, age=${age}`,
+      );
+
       const data = await this.repo.find({
         where: { age_of_vechile: MoreThanOrEqual(age) },
         order: { id: 'ASC' },
@@ -81,14 +100,25 @@ export class VechileService {
           },
         },
       );
+
+      this.logger.verbose(
+        `Export Method Success for userId=${userId}, age=${age}`,
+      );
+
       return new ResponseDTO(true, 'Download Requested');
     } catch (error) {
+      this.logger.error(
+        `Export Method Failed for userId=${userId}, age=${age}, error=${error instanceof Error ? error.stack : JSON.stringify(error)}`,
+      );
+
       return new ResponseDTO(false, 'Download Failed');
     }
   }
 
   async download(fileNameArg: string, res: Response): Promise<Response> {
     try {
+      this.logger.verbose(`Download Method Reqested for file=${fileNameArg}`);
+
       const fileName = fileNameArg;
       const filePath = path.join(this.exportDir, fileName);
 
@@ -107,8 +137,12 @@ export class VechileService {
       const fileStream = fs.createReadStream(filePath);
       fileStream.pipe(res);
 
+      this.logger.verbose(`Download Method Success for file=${fileNameArg}`);
       return res;
     } catch (error) {
+      this.logger.error(
+        `Download Method Failed for file=${fileNameArg}, error=${error instanceof Error ? error.stack : JSON.stringify(error)}`,
+      );
       return res.status(500).send('Download Failed');
     }
   }
@@ -125,6 +159,10 @@ export class VechileService {
   // GraphQL Method
   async create(createVechileInput: CreateVechileInput): Promise<ResponseDTO> {
     try {
+      this.logger.verbose(
+        `Create Method Reqested for createVechileInput=${JSON.stringify(createVechileInput)}`,
+      );
+
       if (
         !createVechileInput.first_name ||
         createVechileInput.first_name.trim() == ''
@@ -190,9 +228,17 @@ export class VechileService {
       );
 
       await this.repo.save(vechile);
+
+      this.logger.verbose(
+        `Create Method Success for createVechileInput=${JSON.stringify(createVechileInput)}`,
+      );
+
       return new ResponseDTO(true, 'Vechile Saved Successfully');
     } catch (error) {
-      console.log(error);
+      this.logger.error(
+        `Create Method for createVechileInput=${JSON.stringify(createVechileInput)}, error=${error instanceof Error ? error.stack : JSON.stringify(error)}`,
+      );
+
       return new ResponseDTO(false, 'Internal Server Error');
     }
   }
@@ -201,6 +247,8 @@ export class VechileService {
     pageArg: number,
     limitArg: number,
   ): Promise<PaginationResponse> {
+    this.logger.verbose(`Find All Method Reqested`);
+
     const total = await this.repo.count();
 
     let limit = limitArg > 0 ? limitArg : 100;
@@ -222,10 +270,14 @@ export class VechileService {
   }
 
   async findAllForVIN(): Promise<Vechile[]> {
+    this.logger.verbose(`Find All For VIN Method Reqested`);
+
     return await this.repo.find();
   }
 
   async findOne(id: number): Promise<Vechile | null> {
+    this.logger.verbose(`Find One Method Reqested for id=${id}`);
+
     return await this.repo.findOne({ where: { id: id } });
   }
 
@@ -234,6 +286,10 @@ export class VechileService {
     pageArg: number,
     limitArg: number,
   ): Promise<PaginationResponse> {
+    this.logger.verbose(
+      `Find All By Model Method Reqested for model=${model.trim()}`,
+    );
+
     if (!model || model.trim() === '') {
       return this.findAll(pageArg, limitArg);
     }
@@ -262,6 +318,10 @@ export class VechileService {
   }
 
   async findOneByVIN(vin: string): Promise<Vechile | null> {
+    this.logger.verbose(
+      `Find One By VIN Method Reqested for vin=${vin.trim().toUpperCase()}`,
+    );
+
     return await this.repo.findOne({
       where: { vin: vin.trim().toUpperCase() },
     });
@@ -272,6 +332,10 @@ export class VechileService {
     updateVechileInput: UpdateVechileInput,
   ): Promise<ResponseDTO> {
     try {
+      this.logger.verbose(
+        `Update Method Reqested for id=${id}, updateVechileInput=${JSON.stringify(updateVechileInput)}`,
+      );
+
       let vechile = await this.repo.findOne({ where: { id: id } });
       if (!vechile) {
         return new ResponseDTO(false, 'ID not Found');
@@ -353,21 +417,39 @@ export class VechileService {
       }
 
       await this.repo.update({ id: id }, vechile);
+
+      this.logger.verbose(
+        `Update Method Success for id=${id}, updateVechileInput=${JSON.stringify(updateVechileInput)}`,
+      );
+
       return new ResponseDTO(true, 'Vechile  Updated Successfully');
     } catch (error) {
+      this.logger.error(
+        `Update Method Failed for id=${id}, updateVechileInput=${JSON.stringify(updateVechileInput)}, error=${error instanceof Error ? error.stack : JSON.stringify(error)}`,
+      );
+
       return new ResponseDTO(false, 'Internal Server Error');
     }
   }
 
   async remove(id: number) {
     try {
+      this.logger.verbose(`Delete Method Reqested for id=${id}`);
+
       let vechile = await this.repo.findOne({ where: { id: id } });
       if (!vechile) {
         return new ResponseDTO(false, 'ID not Found');
       }
       await this.repo.delete({ id: id });
+
+      this.logger.verbose(`Delete Method Success for id=${id}`);
+
       return new ResponseDTO(true, 'Vechile Deleted Successfully');
     } catch (error) {
+      this.logger.error(
+        `Delete Method Failed for id=${id}, error=${error instanceof Error ? error.stack : JSON.stringify(error)}`,
+      );
+
       return new ResponseDTO(false, 'Internal Server Error');
     }
   }

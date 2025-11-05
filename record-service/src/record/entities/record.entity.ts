@@ -22,8 +22,8 @@ export class Record {
   @Column()
   maintenance: string;
 
-  @Field()
-  vechile: Vechile;
+  // @Field()
+  // vechile: Vechile;
 
   constructor(date: string, vin: string, maintenance: string) {
     this.date = date;

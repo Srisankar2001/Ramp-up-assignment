@@ -4,10 +4,13 @@ import { Job, Queue } from 'bullmq';
 import { Repository } from 'typeorm';
 import { Vechile } from '../entities/vechile.entity';
 import { NotificationAPI } from '../apis/notification.api';
+import { Logger } from '@nestjs/common';
 
 @Processor('Validate-Queue')
 export class VechileValidateProcessor extends WorkerHost {
   private BATCH_SIZE: number = 100;
+  private readonly logger: Logger = new Logger(VechileValidateProcessor.name);
+
   constructor(
     @InjectRepository(Vechile) private readonly repo: Repository<Vechile>,
     @InjectQueue('Import-Queue') private readonly importQueue: Queue,
@@ -15,10 +18,16 @@ export class VechileValidateProcessor extends WorkerHost {
   ) {
     super();
   }
+
   async process(job: Job<any, any, string>) {
     let errorLog: string[] = [];
     let flag: boolean = false;
     const { userId, vechileList, fileName } = job.data;
+
+    this.logger.verbose(
+      `Reqested for id=${job.id}, userId=${userId}, file=${fileName}`,
+    );
+
     for (let i = 0; i < vechileList.length; i++) {
       try {
         if (
@@ -149,7 +158,11 @@ export class VechileValidateProcessor extends WorkerHost {
       for (let i = 0; i < vechileList.length; i += this.BATCH_SIZE) {
         this.importQueue.add(
           'import-batch',
-          vechileList.slice(i, i + this.BATCH_SIZE),
+          {
+            vechileList: vechileList.slice(i, i + this.BATCH_SIZE),
+            fileName,
+            userId,
+          },
           {
             attempts: 3,
             backoff: {
@@ -159,7 +172,15 @@ export class VechileValidateProcessor extends WorkerHost {
           },
         );
       }
+
+      this.logger.verbose(
+        `Success for id=${job.id}, userId=${userId}, file=${fileName}`,
+      );
     } else {
+      this.logger.verbose(
+        `Failed for id=${job.id}, userId=${userId}, file=${fileName}`,
+      );
+
       this.notificationAPI.sendValidationFailureNotification(
         userId,
         fileName,

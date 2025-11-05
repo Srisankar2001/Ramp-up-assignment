@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { VechileService } from './vechile.service';
 import { VechileResolver } from './vechile.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';

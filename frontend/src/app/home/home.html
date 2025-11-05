@@ -23,7 +23,7 @@
     </nav>
   </header>
 
-  <table *ngIf="vechiles().length > 0; else noData">
+  <table *ngIf="vechiles()[0] !== null && vechiles().length > 0; else noData">
     <thead>
       <tr>
         <th>ID</th>

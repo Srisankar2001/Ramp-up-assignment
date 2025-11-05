@@ -52,8 +52,8 @@ export class RecordResolver {
     return this.recordService.remove(id);
   }
 
-  @ResolveField()
-  vechile(@Parent() record: Record) {
-    return { __typename: 'Vechile', vin: record.vin };
-  }
+  // @ResolveField()
+  // vechile(@Parent() record: Record) {
+  //   return { __typename: 'Vechile', vin: record.vin };
+  // }
 }

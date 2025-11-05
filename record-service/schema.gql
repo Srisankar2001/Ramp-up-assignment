@@ -2,22 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Vechile {
-  vin: String!
-  records: [Record!]
-}
-
 type Record {
   id: ID!
   vin: String!
   date: String!
   maintenance: String!
-  vechile: Vechile!
 }
 
 type ResponseDTO {
   success: Boolean!
   message: String!
+}
+
+type Vechile {
+  vin: String!
+  records: [Record!]
 }
 
 type Query {
